@@ -62,7 +62,7 @@ func handler(response http.ResponseWriter, request *http.Request) {
 	http.Error(response, "", http.StatusForbidden)
 }
 
-func startServer() {
+func StartServer() {
 	http.HandleFunc("/_yt_", handler)
 
 	fmt.Println("Listening on http://localhost:43214")
