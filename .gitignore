@@ -25,4 +25,4 @@ go.work.sum
 .env
 
 # Temporary files for `air` tool
-./tmp
+tmp/
