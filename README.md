@@ -6,8 +6,7 @@ This project is split in two repository
 
 It goes on pair with [@wharton](https://github.com/wharton-git)'s extension [`url-video-detector`](https://github.com/wharton-git/url-video-detector)
 
-> [!warning] Warning
->
+> [!WARNING]  
 > This project is still in its early stage, breaking change may (if not **will**) occur
 
 ## Installation
