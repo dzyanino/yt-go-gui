@@ -10,7 +10,7 @@ import (
 * I don't think this needs any kind of explanation
  */
 func isUrlSafe(u *url.URL) bool {
-	if u.Scheme != "http" && u.Scheme != "https" {
+	if u.Scheme != "https" {
 		return false
 	}
 
@@ -19,16 +19,28 @@ func isUrlSafe(u *url.URL) bool {
 		return false
 	}
 
-	var ip = net.ParseIP(hostname)
-	if ip != nil {
-		var privateNetworkAddreses []string = []string{"10.0.0.0.8", "172.16.0.0/12", "192.168.0.0/16", "127.0.0.0/8", "::1/128"}
+	var networkIP = net.ParseIP(hostname)
+	if networkIP != nil {
+		var privateNetworkAddreses = [...]string{
+			"10.0.0.0/8",     /* class A */
+			"172.16.0.0/12",  /* class B */
+			"192.168.0.0/16", /* class C */
+			"127.0.0.0/8",    /* loopback */
+			"::1/128",        /* IPv6 loopback */
+			"fc00::/7",       /* IPv6 unique local */
+			"fe80::/10",      /* IPv6 link-local */
+		}
+
 		for _, addr := range privateNetworkAddreses {
-			_, block, _ := net.ParseCIDR(addr)
-			if block.Contains(ip) {
+			_, blockedCIDR, _ := net.ParseCIDR(addr)
+
+			if blockedCIDR.Contains(networkIP) {
 				return false
 			}
 		}
+
+		return true
 	}
 
-	return true
+	return false
 }
