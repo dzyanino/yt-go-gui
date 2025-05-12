@@ -3,6 +3,7 @@ package main
 import (
 	"time"
 
+	preferences "yt-go/preferences"
 	YtServer "yt-go/server"
 
 	"fyne.io/fyne/v2"
@@ -21,6 +22,8 @@ func updateTime(clock *widget.Label) {
 func main() {
 	a := app.NewWithID("com.yt-go.dev.preferences")
 	w := a.NewWindow("Yt-Go")
+
+	preferences.InitializePreferences(a)
 
 	var clock = widget.NewLabel("clock_content")
 
