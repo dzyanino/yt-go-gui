@@ -1,4 +1,4 @@
-package yt_go_server
+package server
 
 import (
 	"encoding/json"
@@ -77,6 +77,8 @@ func StartServer() {
 
 	fmt.Println("Listening on http://localhost:43214")
 
-	/* Returns Fatal error if...who knows */
-	log.Fatal(http.ListenAndServe(":43214", nil))
+	/* Returns Fatal error if server is closed unexpectedly */
+	if err := http.ListenAndServe(":43214", nil); err != http.ErrServerClosed {
+		log.Fatalf("ListenAndServer() : %v", err)
+	}
 }

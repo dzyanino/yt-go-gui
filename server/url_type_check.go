@@ -1,4 +1,4 @@
-package yt_go_server
+package server
 
 import (
 	"net/http"
