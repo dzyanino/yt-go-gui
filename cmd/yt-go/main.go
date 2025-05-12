@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	preferences "yt-go/internal/preferences"
-	YtServer "yt-go/internal/server"
+	"yt-go/internal/preferences"
+	"yt-go/internal/server"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -53,8 +53,10 @@ func main() {
 	}
 
 	/*
-	* Minimizes the app when closed
-	* System Tray depending on current OS
+	 *
+	 * Minimizes the app when closed
+	 * System Tray depending on current OS
+	 *
 	 */
 	if desk, ok := a.(desktop.App); ok {
 		m := fyne.NewMenu("Yt-go",
@@ -67,6 +69,7 @@ func main() {
 		w.Hide()
 	})
 
-	go func() { YtServer.StartServer() }()
+	go func() { server.StartServer() }()
 	a.Run()
+	server.StopServer()
 }
