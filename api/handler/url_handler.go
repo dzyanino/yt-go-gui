@@ -1,24 +1,21 @@
-package server
+package handler
 
 import (
+	"yt-go/api/middleware"
+	"yt-go/internal/types"
+
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
 )
 
 /*
-* Data structure of the JSON coming from web client
+ *
+ * HTTP request handler function
+ *
  */
-type DataFromClient struct {
-	URL string `json:"url"`
-}
-
-/*
-* HTTP request handler function
- */
-func handler(response http.ResponseWriter, request *http.Request) {
+func URLHandler(response http.ResponseWriter, request *http.Request) {
 	/* Allow client to perform a POST request if it asks through OPTIONS request */
 	if request.Method == http.MethodOptions {
 		response.Header().Set("Access-Control-Allow-Origin", "*")
@@ -36,7 +33,7 @@ func handler(response http.ResponseWriter, request *http.Request) {
 
 	fmt.Println(request.Method)
 
-	var data DataFromClient
+	var data types.URLData
 	var decoder *json.Decoder = json.NewDecoder(request.Body)
 	var errDecoding error = decoder.Decode(&data)
 
@@ -52,8 +49,8 @@ func handler(response http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	if isUrlSafe(parsedURL) {
-		if urlIsAboutVideo, err := isAboutVideo(data.URL); err != nil {
+	if middleware.IsUrlSafe(parsedURL) {
+		if urlIsAboutVideo, err := middleware.IsAboutVideo(data.URL); err != nil {
 			http.Error(response, "Error parsing URL or checking its content", http.StatusBadRequest)
 			return
 		} else if !urlIsAboutVideo {
@@ -70,15 +67,4 @@ func handler(response http.ResponseWriter, request *http.Request) {
 
 	/* Not a safe URL ⚠️ Miala malaky :O */
 	http.Error(response, "", http.StatusForbidden)
-}
-
-func StartServer() {
-	http.HandleFunc("/_yt_", handler)
-
-	fmt.Println("Listening on http://localhost:43214")
-
-	/* Returns Fatal error if server is closed unexpectedly */
-	if err := http.ListenAndServe(":43214", nil); err != http.ErrServerClosed {
-		log.Fatalf("ListenAndServer() : %v", err)
-	}
 }

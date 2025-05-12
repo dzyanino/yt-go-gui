@@ -1,4 +1,4 @@
-package server
+package middleware
 
 import (
 	"net/http"
@@ -6,9 +6,7 @@ import (
 	"strings"
 )
 
-/*
-* Checks if the received URL is ending with a video extension
- */
+/* Checks if the received URL is ending with a video extension */
 func isVideoURL(u *url.URL) bool {
 	var videoExtensions = [...]string{
 		".mp4", ".webm", ".mov", ".avi", ".mkv", ".flv", ".wmv", ".mpeg",
@@ -26,9 +24,7 @@ func isVideoURL(u *url.URL) bool {
 	return false
 }
 
-/*
-* Checks if the URL Content-Type is a video
- */
+/* Checks if the URL Content-Type is a video */
 func isVideoContent(urlString string) (bool, error) {
 	response, err := http.Head(urlString)
 
@@ -42,17 +38,17 @@ func isVideoContent(urlString string) (bool, error) {
 	return strings.HasPrefix(contentType, "video/"), nil
 }
 
-/*
-* Checks if the link is from known sites (actually Youtube)
- */
+/* Checks if the link is from known sites (actually Youtube) */
 func isYoutubeLink(urlString string) bool {
 	return strings.HasPrefix(urlString, "https://www.youtube.com/watch?") || strings.HasPrefix(urlString, "https://www.youtube.com/short?")
 }
 
 /*
-* Function using all the validations above to check if any given URL is about video
+ *
+ * Function using all the validations above to check if any given URL is about video
+ *
  */
-func isAboutVideo(urlString string) (bool, error) {
+func IsAboutVideo(urlString string) (bool, error) {
 	parsedURL, err := url.Parse(urlString)
 
 	if err != nil {

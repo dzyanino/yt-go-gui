@@ -2,10 +2,9 @@ package main
 
 import (
 	"fmt"
-	"time"
 
-	preferences "yt-go/preferences"
-	YtServer "yt-go/server"
+	preferences "yt-go/internal/preferences"
+	YtServer "yt-go/internal/server"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -15,38 +14,20 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-/* It's just good to see a dynamic widget updating so fast each second :) */
-func updateTime(clock *widget.Label) {
-	var formatted = time.Now().Format("Current time is : 03:04:05")
-	clock.SetText(formatted)
-}
-
 func main() {
 	a := app.NewWithID("com.yt-go.dev.preferences")
 	w := a.NewWindow("Yt-Go")
 
-	var clock = widget.NewLabel("clock_content")
 	var undoButton = widget.NewButton("Undo them", func() { a.Preferences().SetBool("CONFIGURED", false) })
 
 	/* Initializes a Vertival Layout Container */
 	var mainWindowContent *fyne.Container = container.NewVBox(
-		clock,
 		undoButton,
 	)
 
-	/*
-	* Updates the time displayed each second
-	* Background process using Goroutines `go func() {}()`
-	 */
-	go func() {
-		for range time.Tick(time.Second) {
-			fyne.Do(func() { updateTime(clock) })
-		}
-	}()
-
 	/* Applies content to the window and resizes it */
 	w.SetContent(mainWindowContent)
-	w.Resize(fyne.NewSize(800, 600))
+	w.Resize(fyne.NewSize(1280, 576))
 	w.SetMaster()
 	w.Show()
 
