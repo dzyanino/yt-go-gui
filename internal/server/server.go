@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -11,7 +12,7 @@ import (
 /*
 * Data structure of the JSON coming from web client
  */
-type DataFromClient struct {
+type URLFromClient struct {
 	URL string `json:"url"`
 }
 
@@ -36,7 +37,7 @@ func handler(response http.ResponseWriter, request *http.Request) {
 
 	fmt.Println(request.Method)
 
-	var data DataFromClient
+	var data URLFromClient
 	var decoder *json.Decoder = json.NewDecoder(request.Body)
 	var errDecoding error = decoder.Decode(&data)
 
@@ -78,7 +79,7 @@ func StartServer() {
 	fmt.Println("Listening on http://localhost:43214")
 
 	/* Returns Fatal error if server is closed unexpectedly */
-	if err := http.ListenAndServe(":43214", nil); err != http.ErrServerClosed {
+	if err := http.ListenAndServe(":43214", nil); !errors.Is(err, http.ErrServerClosed) {
 		log.Fatalf("ListenAndServer() : %v", err)
 	}
 }
