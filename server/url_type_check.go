@@ -10,7 +10,11 @@ import (
 * Checks if the received URL is ending with a video extension
  */
 func isVideoURL(u *url.URL) bool {
-	var videoExtensions []string = []string{".mp4", ".webm", ".mov", ".avi", ".mkv", ".flv", "wmv", "mpeg"}
+	var videoExtensions = [...]string{
+		".mp4", ".webm", ".mov", ".avi", ".mkv", ".flv", ".wmv", ".mpeg",
+		".3gp", ".ogg", ".m4v", ".ts", ".vob", ".m2ts", ".mts", ".f4v",
+		".rm", ".rmvb",
+	}
 	var path string = strings.ToLower(u.Path)
 
 	for _, extension := range videoExtensions {
@@ -23,7 +27,7 @@ func isVideoURL(u *url.URL) bool {
 }
 
 /*
-* Checks if the URL content a video
+* Checks if the URL Content-Type is a video
  */
 func isVideoContent(urlString string) (bool, error) {
 	response, err := http.Head(urlString)
@@ -34,11 +38,19 @@ func isVideoContent(urlString string) (bool, error) {
 	defer response.Body.Close()
 
 	var contentType string = response.Header.Get("Content-Type")
+
 	return strings.HasPrefix(contentType, "video/"), nil
 }
 
 /*
-* Function using the two validations above to check if any given URL is about video
+* Checks if the link is from known sites (actually Youtube)
+ */
+func isYoutubeLink(urlString string) bool {
+	return strings.HasPrefix(urlString, "https://www.youtube.com/watch?") || strings.HasPrefix(urlString, "https://www.youtube.com/short?")
+}
+
+/*
+* Function using all the validations above to check if any given URL is about video
  */
 func isAboutVideo(urlString string) (bool, error) {
 	parsedURL, err := url.Parse(urlString)
@@ -47,9 +59,18 @@ func isAboutVideo(urlString string) (bool, error) {
 		return false, err
 	}
 
+	/* First check */
 	if isVideoURL(parsedURL) {
 		return true, nil
 	}
 
-	return isVideoContent(urlString)
+	/* Second check */
+	if contentIsVideo, err := isVideoContent(urlString); err != nil {
+		return false, err
+	} else if contentIsVideo {
+		return true, nil
+	}
+
+	/* Third check */
+	return isYoutubeLink(urlString), nil
 }
