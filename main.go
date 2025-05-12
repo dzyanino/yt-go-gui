@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"time"
 
 	preferences "yt-go/preferences"
@@ -9,6 +10,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/driver/desktop"
 	"fyne.io/fyne/v2/widget"
 )
@@ -23,13 +25,13 @@ func main() {
 	a := app.NewWithID("com.yt-go.dev.preferences")
 	w := a.NewWindow("Yt-Go")
 
-	preferences.InitializePreferences(a)
-
 	var clock = widget.NewLabel("clock_content")
+	var undoButton = widget.NewButton("Undo them", func() { a.Preferences().SetBool("CONFIGURED", false) })
 
 	/* Initializes a Vertival Layout Container */
 	var mainWindowContent *fyne.Container = container.NewVBox(
 		clock,
+		undoButton,
 	)
 
 	/*
@@ -45,6 +47,29 @@ func main() {
 	/* Applies content to the window and resizes it */
 	w.SetContent(mainWindowContent)
 	w.Resize(fyne.NewSize(800, 600))
+	w.SetMaster()
+	w.Show()
+
+	var preferencesExist bool = a.Preferences().BoolWithFallback("CONFIGURED", false)
+	if !preferencesExist {
+		fmt.Println("Preferences not found\nInitializing...")
+
+		preferences.InitializePreferences(a)
+
+		var preferencesDialog *dialog.CustomDialog
+		var label = widget.NewLabel("Preferences not found. Yt-Go won't work without.")
+		var confirmButton = widget.NewButton("Configure them", func() {
+			a.Preferences().SetBool("CONFIGURED", true)
+			preferencesDialog.Dismiss()
+		})
+		var mainContent = container.NewVBox(
+			label,
+			confirmButton,
+		)
+
+		preferencesDialog = dialog.NewCustomWithoutButtons("Preferences", mainContent, w)
+		preferencesDialog.Show()
+	}
 
 	/*
 	* Minimizes the app when closed
@@ -62,5 +87,5 @@ func main() {
 	})
 
 	go func() { YtServer.StartServer() }()
-	w.ShowAndRun()
+	a.Run()
 }
