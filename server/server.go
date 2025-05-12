@@ -19,10 +19,22 @@ type DataFromClient struct {
 * HTTP request handler function
  */
 func handler(response http.ResponseWriter, request *http.Request) {
-	if request.Method != http.MethodPost {
-		http.Error(response, "Only POST method allowed", http.StatusMethodNotAllowed)
+	/* Allow client to perform a POST request if it asks through OPTIONS request */
+	if request.Method == http.MethodOptions {
+		response.Header().Set("Access-Control-Allow-Origin", "*")
+		response.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+		response.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		response.WriteHeader(http.StatusNoContent)
 		return
 	}
+
+	if request.Method != http.MethodPost {
+		http.Error(response, "Only POST method allowed", http.StatusMethodNotAllowed)
+		fmt.Println(request)
+		return
+	}
+
+	fmt.Println(request.Method)
 
 	var data DataFromClient
 	var decoder *json.Decoder = json.NewDecoder(request.Body)
@@ -37,17 +49,16 @@ func handler(response http.ResponseWriter, request *http.Request) {
 
 	if errParsing != nil {
 		http.Error(response, "Invalid URL", http.StatusBadRequest)
+		return
 	}
 
 	if isUrlSafe(parsedURL) {
-		videoURL, err := isAboutVideo(data.URL)
-
-		if err != nil {
+		if urlIsAboutVideo, err := isAboutVideo(data.URL); err != nil {
 			http.Error(response, "Error parsing URL or checking its content", http.StatusBadRequest)
-		}
-
-		if !videoURL {
+			return
+		} else if !urlIsAboutVideo {
 			http.Error(response, "URL not about video", http.StatusBadRequest)
+			return
 		}
 
 		response.Header().Set("Content-Type", "application/json")
@@ -55,7 +66,6 @@ func handler(response http.ResponseWriter, request *http.Request) {
 			"status": "ok",
 			"url":    data.URL,
 		})
-		fmt.Println(data.URL)
 	}
 
 	/* Not a safe URL ⚠️ Miala malaky :O */
