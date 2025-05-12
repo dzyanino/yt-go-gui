@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	yt_go_server "yt-go/server"
+	YtServer "yt-go/server"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -19,7 +19,7 @@ func updateTime(clock *widget.Label) {
 }
 
 func main() {
-	a := app.NewWithID("com.yt-go.dev")
+	a := app.NewWithID("com.yt-go.dev.preferences")
 	w := a.NewWindow("Yt-Go")
 
 	var clock = widget.NewLabel("clock_content")
@@ -58,6 +58,6 @@ func main() {
 		w.Hide()
 	})
 
-	go func() { yt_go_server.StartServer() }()
+	go func() { YtServer.StartServer() }()
 	w.ShowAndRun()
 }
