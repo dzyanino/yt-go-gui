@@ -1,4 +1,4 @@
-package server
+package middleware
 
 import (
 	"net"
@@ -7,9 +7,11 @@ import (
 )
 
 /*
-* I don't think this needs any kind of explanation
+ *
+ * I don't think this needs any kind of explanation
+ *
  */
-func isUrlSafe(u *url.URL) bool {
+func IsUrlSafe(u *url.URL) bool {
 	if u.Scheme != "https" {
 		return false
 	}
