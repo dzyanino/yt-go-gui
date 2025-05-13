@@ -27,7 +27,6 @@ func URLHandler(response http.ResponseWriter, request *http.Request) {
 
 	if request.Method != http.MethodPost {
 		http.Error(response, "Only POST method allowed", http.StatusMethodNotAllowed)
-		fmt.Println(request)
 		return
 	}
 

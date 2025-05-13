@@ -55,18 +55,15 @@ func IsAboutVideo(urlString string) (bool, error) {
 		return false, err
 	}
 
-	/* First check */
 	if isVideoURL(parsedURL) {
 		return true, nil
 	}
 
-	/* Second check */
 	if contentIsVideo, err := isVideoContent(urlString); err != nil {
 		return false, err
 	} else if contentIsVideo {
 		return true, nil
 	}
 
-	/* Third check */
 	return isYoutubeLink(urlString), nil
 }

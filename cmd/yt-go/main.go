@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	preferences "yt-go/internal/preferences"
-	YtServer "yt-go/internal/server"
+	"yt-go/internal/preferences"
+	"yt-go/internal/server"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -21,8 +21,10 @@ func main() {
 	var undoButton = widget.NewButton("Undo them", func() { a.Preferences().SetBool("CONFIGURED", false) })
 
 	/* Initializes a Vertival Layout Container */
-	var mainWindowContent *fyne.Container = container.NewVBox(
-		undoButton,
+	var mainWindowContent *fyne.Container = container.NewPadded(
+		container.NewVBox(
+			undoButton,
+		),
 	)
 
 	/* Applies content to the window and resizes it */
@@ -53,8 +55,10 @@ func main() {
 	}
 
 	/*
-	* Minimizes the app when closed
-	* System Tray depending on current OS
+	 *
+	 * Minimizes the app when closed
+	 * System Tray depending on current OS
+	 *
 	 */
 	if desk, ok := a.(desktop.App); ok {
 		m := fyne.NewMenu("Yt-go",
@@ -67,6 +71,10 @@ func main() {
 		w.Hide()
 	})
 
-	go func() { YtServer.StartServer() }()
+	go func() { server.StartServer() }()
 	a.Run()
+
+	if server.StopServer() == nil {
+		fmt.Println("Server shutdown gracefully. App closed")
+	}
 }
