@@ -21,8 +21,10 @@ func main() {
 	var undoButton = widget.NewButton("Undo them", func() { a.Preferences().SetBool("CONFIGURED", false) })
 
 	/* Initializes a Vertival Layout Container */
-	var mainWindowContent *fyne.Container = container.NewVBox(
-		undoButton,
+	var mainWindowContent *fyne.Container = container.NewPadded(
+		container.NewVBox(
+			undoButton,
+		),
 	)
 
 	/* Applies content to the window and resizes it */
@@ -71,5 +73,8 @@ func main() {
 
 	go func() { server.StartServer() }()
 	a.Run()
-	server.StopServer()
+
+	if err := server.StopServer(); err == nil {
+		fmt.Println("Server shutdown gracefully")
+	}
 }

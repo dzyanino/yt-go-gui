@@ -8,12 +8,19 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"sync"
 	"time"
 
 	"yt-go/api/handler"
 )
 
-var Srv *http.Server
+var (
+	Srv                     *http.Server
+	stopOnce                sync.Once
+	isRunning               bool
+	ErrServerIsNotRunning   = errors.New("server is not running")
+	ErrServerAlreadyStopped = errors.New("server already shutdown")
+)
 
 func setEndpointHandlers(mux *http.ServeMux) {
 	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
@@ -23,17 +30,28 @@ func setEndpointHandlers(mux *http.ServeMux) {
 }
 
 func StopServer() error {
-	if Srv == nil {
-		fmt.Printf("HTTP server Shutdown error. Server not found")
-		return http.ErrServerClosed
+	var stopError error
+
+	if !isRunning {
+		return ErrServerAlreadyStopped
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	stopOnce.Do(func() {
+		if Srv == nil {
+			fmt.Println("HTTP server shutdown error: server not found")
+			stopError = ErrServerIsNotRunning
+			return
+		}
 
-	var err = Srv.Shutdown(ctx)
-	fmt.Println("Server shutdown gracefully")
-	return err
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		stopError = Srv.Shutdown(ctx)
+		isRunning = false
+		Srv = nil
+	})
+
+	return stopError
 }
 
 func StartServer() {
@@ -57,7 +75,9 @@ func StartServer() {
 		close(idleConnectionsClosed)
 	}()
 
+	isRunning = true
 	fmt.Println("Server listening on http://localhost:43214")
+
 	if err := Srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 		log.Fatalf("HTTP server ListenAndServe error: %v", err)
 	}
