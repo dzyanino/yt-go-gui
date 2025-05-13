@@ -8,7 +8,7 @@ import (
 
 /*
  *
- * I don't think this needs any kind of explanation
+ * Checks whether the URL isn't about local network IP
  *
  */
 func IsUrlSafe(u *url.URL) bool {

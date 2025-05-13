@@ -74,7 +74,7 @@ func main() {
 	go func() { server.StartServer() }()
 	a.Run()
 
-	if err := server.StopServer(); err == nil {
-		fmt.Println("Server shutdown gracefully")
+	if server.StopServer() == nil {
+		fmt.Println("Server shutdown gracefully. App closed")
 	}
 }
