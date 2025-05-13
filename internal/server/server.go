@@ -23,10 +23,10 @@ var (
 )
 
 func setEndpointHandlers(mux *http.ServeMux) {
-	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello, World!"))
-	})
-	mux.HandleFunc("POST /_yt_", handler.URLHandler)
+	// mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
+	// 	w.Write([]byte("Hello, World!"))
+	// })
+	mux.HandleFunc("/_yt_", handler.URLHandler)
 }
 
 func StopServer() error {
