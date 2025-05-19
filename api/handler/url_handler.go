@@ -2,6 +2,7 @@ package handler
 
 import (
 	"yt-go/api/middleware"
+	"yt-go/internal/downloader"
 	"yt-go/internal/types"
 
 	"encoding/json"
@@ -48,22 +49,24 @@ func URLHandler(response http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	if middleware.IsUrlSafe(parsedURL) {
-		if urlIsAboutVideo, err := middleware.IsAboutVideo(data.URL); err != nil {
-			http.Error(response, "Error parsing URL or checking its content", http.StatusBadRequest)
-			return
-		} else if !urlIsAboutVideo {
-			http.Error(response, "URL not about video", http.StatusBadRequest)
-			return
-		}
-
-		response.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(response).Encode(map[string]string{
-			"status": "ok",
-			"url":    data.URL,
-		})
+	if !middleware.IsUrlSafe(parsedURL) {
+		/* Not a safe URL ⚠️ Miala malaky :O */
+		http.Error(response, "", http.StatusForbidden)
+		return
 	}
 
-	/* Not a safe URL ⚠️ Miala malaky :O */
-	http.Error(response, "", http.StatusForbidden)
+	if urlIsAboutVideo, err := middleware.IsAboutVideo(data.URL); err != nil {
+		http.Error(response, "Error parsing URL or checking its content", http.StatusBadRequest)
+		return
+	} else if !urlIsAboutVideo {
+		http.Error(response, "URL not about video", http.StatusBadRequest)
+		return
+	}
+
+	downloader.DownloadVideo(data.URL)
+	response.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(response).Encode(map[string]string{
+		"status": "ok",
+		"url":    data.URL,
+	})
 }
