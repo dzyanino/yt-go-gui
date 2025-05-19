@@ -17,6 +17,7 @@ import (
 func main() {
 	a := app.NewWithID("com.yt-go.dev.preferences")
 	w := a.NewWindow("Yt-Go")
+	icon, _ := fyne.LoadResourceFromPath("assets/power.png")
 
 	var undoButton = widget.NewButton("Undo them", func() { a.Preferences().SetBool("CONFIGURED", false) })
 
@@ -72,6 +73,7 @@ func main() {
 	})
 
 	go func() { server.StartServer() }()
+	a.SetIcon(icon)
 	a.Run()
 
 	if server.StopServer() == nil {
